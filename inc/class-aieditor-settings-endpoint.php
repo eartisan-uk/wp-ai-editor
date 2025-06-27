@@ -39,8 +39,16 @@ class AIEditor_Settings_Endpoint extends WP_REST_Controller {
 		}
 
 		// Extract the settings.
+		$api_keys_present = array(
+			'openai'    => ! empty( $options['ai_editor_openai_api_key'] ),
+			'anthropic' => ! empty( $options['ai_editor_anthropic_api_key'] ),
+			'gemini'    => ! empty( $options['ai_editor_gemini_api_key'] ),
+		);
+
 		$settings = array(
-			'ai_editor_model' => isset( $options['ai_editor_model'] ) ? $options['ai_editor_model'] : 'm4o',
+			'ai_editor_model'      => isset( $options['ai_editor_model'] ) ? $options['ai_editor_model'] : 'm4o',
+			'api_keys_present'     => $api_keys_present, // Send booleans indicating if keys are set
+			// We don't send the actual API keys to the client-side for security.
 		);
 
 		// Return the settings in the response.

@@ -17,6 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Require files for the plugin.
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-language-setup.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-settings-endpoint.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-openai-endpoint.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-ai-endpoint.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-settings-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-aieditor-enqueues.php';
