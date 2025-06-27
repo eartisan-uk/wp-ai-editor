@@ -1,0 +1,147 @@
+# Copyright (C) 2024 Virgiliu Diaconu
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Block Editor 1.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ai-editor\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-06-15T09:42:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.6.0\n"
+"X-Domain: ai-editor\n"
+
+#. Plugin Name of the plugin
+msgid "AI Block Editor"
+msgstr ""
+
+#. Description of the plugin
+msgid "AI-powered Gutenberg sidebar assistant that inserts blocks and content directly into the editor based on your prompts. The plugin utilizes OpenAI's GPT technology."
+msgstr ""
+
+#. Author of the plugin
+msgid "Virgiliu Diaconu"
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:70
+msgid "Please enter your OpenAI API key in Settings -> AI Editor."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:106
+msgid "JSON parsing error: "
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:115
+msgid "You do not have access to the GPT-4 model. Please go to the AI Editor settings and select the GPT-3.5 model."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:117
+msgid "Unknown error."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:165
+msgid "The %s blocks are not supported by the current model. Switch to a GPT-4 model for this feature."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:170
+msgid "The %s block is not supported. Switch to a GPT-4 model for this feature."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:223
+msgid "You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor when instructed by the user. Ask for clarification if a request is ambiguous. Use your available Gutenberg blocks (columns, headings, paragraphs, lists, images, buttons, quotes, pullquotes) to create organized layouts. Do not use Markdown markup language. Once a block is added, it cannot be edited."
+msgstr ""
+
+#: inc/class-aieditor-openai-endpoint.php:228
+msgid "You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor. If the user does not provide specific content, use filler text. Create visually appealing and interactive layouts with your available Gutenberg blocks, using columns where appropriate. Once a block is added, it cannot be edited."
+msgstr ""
+
+#: inc/class-aieditor-settings-endpoint.php:38
+msgid "Settings not found."
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:31
+#: inc/class-aieditor-settings-page.php:166
+msgid "AI Editor Settings"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:32
+#: build/sidebar.js:162
+#: src/ChatSidebar.js:103
+#: build/sidebar.js:103
+msgid "AI Editor"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:47
+msgid "OpenAI Configuration"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:53
+msgid "OpenAI API Key"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:54
+msgid "GPT Model"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:112
+msgid "Enter your OpenAI API key."
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:122
+msgid "For best results, use the GPT-4 models if you have access to them."
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:156
+msgid "Please enter your OpenAI API key and select a GPT model."
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:177
+msgid "Reminder"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:179
+msgid "Your API key is stored in your database. You are responsible for your own API key and any associated charges or usage limits incurred with OpenAI. Find your API key"
+msgstr ""
+
+#: inc/class-aieditor-settings-page.php:179
+msgid "here"
+msgstr ""
+
+#: build/sidebar.js:187
+#: src/ChatSidebar.js:155
+#: build/sidebar.js:155
+msgid "Write a message..."
+msgstr ""
+
+#: build/sidebar.js:28182
+#: src/sidebar.js:135
+#: build/sidebar.js:25417
+msgid "The model did not format the request correctly. Please try again with a more detailed prompt."
+msgstr ""
+
+#: build/sidebar.js:28189
+#: src/sidebar.js:145
+#: build/sidebar.js:25427
+msgid "An error occurred: Invalid data structure. Please try again or use a GPT-4 model."
+msgstr ""
+
+#: build/sidebar.js:28197
+#: src/sidebar.js:154
+#: build/sidebar.js:25436
+msgid "Blocks added successfully!"
+msgstr ""
+
+#: build/sidebar.js:28238
+#: src/sidebar.js:185
+#: build/sidebar.js:25467
+msgid "An error occurred: There was a problem with the OpenAI request."
+msgstr ""
+
+#: build/sidebar.js:28244
+#: src/sidebar.js:192
+#: build/sidebar.js:25474
+msgid "The request has been cancelled."
+msgstr ""
