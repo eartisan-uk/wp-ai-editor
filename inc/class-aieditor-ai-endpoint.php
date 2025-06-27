@@ -264,9 +264,11 @@ class AIEditor_AI_Endpoint extends WP_REST_Controller {
 			}
 		}
 
-		// Update the response data, remove tool_calls, and add combined blocks if not empty.
-		if ( isset( $response_data['choices'] ) ) {
-			foreach ( $response_data['choices'] as &$choice ) {
+		// Update the normalized response data, remove tool_calls, and add combined blocks if not empty.
+		if ( isset( $normalized_response_data['choices'] ) ) {
+			foreach ( $normalized_response_data['choices'] as &$choice ) {
+				// Unsetting tool_calls might be optional if client doesn't use it,
+				// but good for cleaning up the response if blocks are the primary goal here.
 				if ( isset( $choice['message']['tool_calls'] ) ) {
 					unset( $choice['message']['tool_calls'] );
 				}
@@ -274,10 +276,12 @@ class AIEditor_AI_Endpoint extends WP_REST_Controller {
 					$choice['message']['blocks'] = $combined_blocks;
 				}
 			}
+			// Ensure changes to $choice (passed by reference) are reflected in $normalized_response_data
+			// This is implicitly handled as $choice is a reference within $normalized_response_data['choices'].
 		}
 
-		// Update the response array with the modified response data.
-		$response_array['data'] = $response_data;
+		// Update the response array with the modified and normalized response data.
+		$response_array['data'] = $normalized_response_data;
 
 		// Return the successful response.
 		return new WP_REST_Response( $response_array, 200 );
