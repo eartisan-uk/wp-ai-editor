@@ -43,7 +43,111 @@ class AIEditor_AI_Endpoint extends WP_REST_Controller {
 	public function handle_ai_request( $request ) {
 		// Get the parameters from the request.
 		$messages  = $request->get_param( 'messages' );
-		$functions = $request->get_param( 'functions' );
+		// $functions = $request->get_param( 'functions' ); // We will redefine this below
+
+		// Define the updated function schema including GenerateBlocks
+		$gb_element_tag_names = [ 'div', 'section', 'article', 'aside', 'header', 'footer', 'nav', 'main', 'figure', 'a', 'ul', 'ol', 'li', 'dl', 'dt', 'dd' ];
+		$gb_text_tag_names = [ 'p', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'button', 'figcaption', 'li' ];
+
+		$functions = [[
+			'type' => 'function',
+			'function' => [
+				'name' => 'create_gutenberg_blocks',
+				'description' => 'Create multiple Gutenberg blocks (including Core and GenerateBlocks) in the WordPress editor. Use generateblocks/element for containers/sections and generateblocks/text for text, headlines, or buttons.',
+				'parameters' => [
+					'type' => 'object',
+					'properties' => [
+						'blocks' => [
+							'type' => 'array',
+							'items' => [
+								'type' => 'object',
+								'properties' => [
+									'blockType' => [
+										'type' => 'string',
+										'enum' => [
+											// Core blocks
+											'core/heading', 'core/paragraph', 'core/list', 'core/columns', 'core/buttons', 'core/image', 'core/quote', 'core/pullquote', 'core/table',
+											// GenerateBlocks
+											'generateblocks/element', 'generateblocks/text',
+										],
+										'description' => 'The type of block. Use generateblocks/element for layout containers, and generateblocks/text for text, headlines, or buttons.',
+									],
+									// Core block attributes (simplified for brevity, original plugin has more)
+									'content' => [
+										'type' => 'string',
+										'description' => 'The main content of the block (e.g., text for paragraph, headline content, list items separated by newlines for core/list, text for generateblocks/text).',
+									],
+									'level' => [ 'type' => 'integer', 'description' => 'Heading level (1-6) for core/heading.' ],
+									'ordered' => [ 'type' => 'boolean', 'description' => 'For core/list, true if ordered, false if unordered.' ],
+									'buttonsContent' => [
+										'type' => 'array',
+										'items' => [ 'type' => 'object', 'properties' => [ 'text' => [ 'type' => 'string' ], 'url' => [ 'type' => 'string' ] ] ],
+										'description' => 'For core/buttons, an array of button objects.',
+									],
+									'columnContent' => [
+										'type' => 'array',
+										'items' => [ 'type' => 'array', 'items' => [ 'type' => 'object', 'properties' => [ 'blockType' => ['type' => 'string' ], 'content' => [ 'type' => 'string'] ] ] ],
+										'description' => 'For core/columns, array of arrays representing columns with their blocks.',
+									],
+									// GenerateBlocks specific attributes
+									'tagName' => [
+										'type' => 'string',
+										'description' => 'HTML tag for GenerateBlocks elements (e.g., "div", "section" for generateblocks/element; "p", "h2", "a" for generateblocks/text).',
+										// Consider adding enums dynamically based on blockType if AI struggles, but this description should guide it.
+										// 'enum' => array_merge($gb_element_tag_names, $gb_text_tag_names) // This would be too broad here.
+									],
+									'styles' => [
+										'type' => 'object',
+										'description' => 'Styling for GenerateBlocks. All properties are optional. Example: { "backgroundColor": "#f0f0f0", "paddingTop": "20px", "typography": { "fontSize": "2em" } }',
+										'properties' => [
+											'backgroundColor' => [ 'type' => 'string', 'description' => 'Background color (e.g., #RRGGBB, var(--preset--color--primary)).' ],
+											'textColor' => [ 'type' => 'string', 'description' => 'Text color.' ],
+											'paddingTop' => [ 'type' => 'string', 'description' => 'Top padding (e.g., 20px, 1em).' ],
+											'paddingRight' => [ 'type' => 'string', 'description' => 'Right padding.' ],
+											'paddingBottom' => [ 'type' => 'string', 'description' => 'Bottom padding.' ],
+											'paddingLeft' => [ 'type' => 'string', 'description' => 'Left padding.' ],
+											'marginTop' => [ 'type' => 'string', 'description' => 'Top margin.' ],
+											'marginRight' => [ 'type' => 'string', 'description' => 'Right margin.' ],
+											'marginBottom' => [ 'type' => 'string', 'description' => 'Bottom margin.' ],
+											'marginLeft' => [ 'type' => 'string', 'description' => 'Left margin.' ],
+											'display' => [ 'type' => 'string', 'enum' => ['block', 'inline-block', 'flex', 'grid', 'inline-flex'], 'description' => 'CSS display property, e.g., "flex" or "grid" for generateblocks/element.' ],
+											'flexDirection' => [ 'type' => 'string', 'enum' => ['row', 'column', 'row-reverse', 'column-reverse'], 'description' => 'For flex containers (generateblocks/element with display:flex).' ],
+											'alignItems' => [ 'type' => 'string', 'enum' => ['stretch', 'flex-start', 'center', 'flex-end', 'baseline'], 'description' => 'For flex containers.' ],
+											'justifyContent' => [ 'type' => 'string', 'enum' => ['flex-start', 'center', 'flex-end', 'space-between', 'space-around', 'space-evenly'], 'description' => 'For flex containers.' ],
+											'typography' => [
+												'type' => 'object',
+												'description' => 'Typography styles, primarily for generateblocks/text.',
+												'properties' => [
+													'fontSize' => [ 'type' => 'string', 'description' => 'Font size (e.g., 24px, 1.5em, clamp(...)).' ],
+													'fontWeight' => [ 'type' => 'string', 'description' => 'Font weight (e.g., bold, 700, normal).' ],
+													'textAlign' => [ 'type' => 'string', 'enum' => ['left', 'center', 'right', 'justify'], 'description' => 'Text alignment.' ],
+													'fontFamily' => [ 'type' => 'string', 'description' => 'Font family (use with caution, ensure font is available e.g., inherit).' ],
+												],
+											],
+										],
+									],
+									'htmlAttributes' => [
+										'type' => 'object',
+										'description' => 'HTML attributes for generateblocks/text, e.g., { "href": "https://example.com", "target": "_blank" } for links.',
+										'properties' => [
+											'href' => [ 'type' => 'string', 'format' => 'uri', 'description' => 'URL for links (when tagName is "a").' ],
+											'target' => [ 'type' => 'string', 'description' => 'Link target (e.g., _blank).' ],
+											'rel' => [ 'type' => 'string', 'description' => 'Link rel attribute.' ],
+											'id' => [ 'type' => 'string', 'description' => 'HTML id attribute.' ],
+											'class' => [ 'type' => 'string', 'description' => 'HTML class attribute.' ],
+										],
+									],
+									'icon' => [ 'type' => 'string', 'description' => 'SVG HTML string for an icon (generateblocks/text).' ],
+									'iconLocation' => [ 'type' => 'string', 'enum' => ['before', 'after'], 'description' => 'Location of the icon relative to text (generateblocks/text).' ],
+								],
+								'required' => ['blockType'],
+							],
+						],
+					],
+					'required' => ['blocks'],
+				],
+			],
+		]];
 
 		// Get the plugin settings.
 		$options = get_option( 'ai_editor_settings' );
@@ -438,20 +542,33 @@ class AIEditor_AI_Endpoint extends WP_REST_Controller {
 		$system_message = '';
 		// Generic message suitable for most models, emphasizing Gutenberg block creation.
 		$base_message = __(
-			'You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor. If the user does not provide specific content, use filler text. Create visually appealing and interactive layouts with your available Gutenberg blocks, using columns where appropriate. Once a block is added, it cannot be edited.',
+			'You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor. If the user does not provide specific content, use filler text. Create visually appealing and interactive layouts. Once a block is added, it cannot be edited.',
+			'ai-editor'
+		);
+
+		$core_blocks_guidance = __(
+			'Use available Core Gutenberg blocks (core/columns, core/heading, core/paragraph, core/list, core/image, core/buttons, core/quote, core/pullquote, core/table) to create organized layouts. For core/list, specify "ordered": true/false. For core/heading, specify "level" (1-6). Do not use Markdown.',
+			'ai-editor'
+		);
+
+		$generateblocks_guidance = __(
+			"You can also use GenerateBlocks: \n" .
+			"- `generateblocks/element`: For containers, sections, or wrappers. Use `tagName` (e.g., 'div', 'section') for the HTML element. Style with `styles` (e.g., `\"styles\": { \"backgroundColor\": \"#f0f0f0\", \"paddingTop\": \"20px\", \"display\": \"flex\", \"flexDirection\": \"column\" }`).\n" .
+			"- `generateblocks/text`: For text, headlines, or buttons. Use `tagName` (e.g., 'p', 'h2', 'a', 'button') and `content` for the text. For links (`tagName: 'a'`) or buttons, use `htmlAttributes` for URL (e.g., `\"htmlAttributes\": { \"href\": \"https://example.com\" }`). Style with `styles` (e.g., `\"styles\": { \"typography\": { \"fontSize\": \"2em\", \"fontWeight\": \"bold\" }, \"textColor\": \"#333333\" }`). You can also add an SVG string to the `icon` attribute and set `iconLocation` ('before' or 'after').",
 			'ai-editor'
 		);
 
 		// Specific adjustments or different messages based on model family or specific model
 		if ( strpos( $model_identifier, 'm3' ) === 0 ) { // Older OpenAI GPT-3.5
+			// GPT-3.5 might be less reliable with complex JSON like GenerateBlocks styles and might not have seen GenerateBlocks in its training.
+			// Keep it focused on core blocks for higher reliability.
 			$system_message = __(
-				'You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor when instructed by the user. Ask for clarification if a request is ambiguous. Use your available Gutenberg blocks (columns, headings, paragraphs, lists, images, buttons, quotes, pullquotes) to create organized layouts. Do not use Markdown markup language. Once a block is added, it cannot be edited.',
+				'You are a helpful assistant tasked with inserting content as blocks in the WordPress Gutenberg editor when instructed by the user. Ask for clarification if a request is ambiguous. Use your available Core Gutenberg blocks (core/columns, core/heading, core/paragraph, core/list, core/image, core/buttons, core/quote, core/pullquote) to create organized layouts. Do not use Markdown markup language. Once a block is added, it cannot be edited.',
 				'ai-editor'
 			);
 		} else {
-			// For other models (GPT-4, Claude, Gemini), use the base message.
-			// This can be further customized if specific models have different needs or capabilities for system prompts.
-			$system_message = $base_message;
+			// For other models (GPT-4, Claude, Gemini), provide guidance for both Core and GenerateBlocks.
+			$system_message = $base_message . "\n\n" . $core_blocks_guidance . "\n\n" . $generateblocks_guidance;
 		}
 
 		return $system_message;
